@@ -1,0 +1,112 @@
+body {
+	margin: 0;
+}
+#container{
+	width: 100%;
+	height: 100%;
+}
+
+.bigView
+{
+	float: left;
+	width: 100%;
+	height: 100%;
+	min-height: 950px;
+	border: 0px solid black;
+	margin: 0px;
+	z-index: 10;
+}
+.statusdiv {
+	display: none;
+}
+
+#toolbar
+{
+	position: absolute;
+	top: 5px;	
+	right: 50px;
+}
+
+ .smallPreview
+{
+	position: absolute;
+	clear: both;
+	top: 45px;	
+	right: 10px;
+	background: transparent;
+	height: 200px;
+	max-height: 200px;
+	width: 300px;
+	z-index: 100;
+}
+.button
+{
+	text-indent:0px;
+	width:75px;
+	height:40px;
+    background-repeat: no-repeat;
+
+}
+.button > div
+{
+	    width: 75px;
+	    height: 40px;
+		padding-top: 25px;
+		display: block;
+	    vertical-align: bottom;
+
+}
+.button span
+{
+	margin-top: 20px;
+}
+
+#penBtn div
+{
+	background: url('../images/restart.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 22px 22px;
+}
+
+
+#loadBtn div
+{
+	background: url('../images/camera.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 22px 22px;
+}
+
+#editBtn div
+{
+	background: url('../images/pen.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 22px 22px;
+}
+#deleteBtn div
+{
+	background: url('../images/trash.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 22px 22px;
+
+}
+#saveBtn div
+{
+	background: url('../images/save.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 22px 22px;
+}
+#confirmSave, #btnCamera
+{
+	float: right;
+	margin: 5px;
+	width: 100px;
+}
+#cookieName
+{
+	width: 310px;
+}

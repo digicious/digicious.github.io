@@ -1,0 +1,209 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cookie Cutter</title>
+        <script type="text/javascript" src="./scripts/jquery-1.9.1.js"></script>
+
+        <script type="text/javascript" src="./scripts/jquery-ui-1.10.3.min.js"></script>
+        <script type="text/javascript" src="./scripts/paperjs/dist/paper-full.js"></script>
+   		<script type="text/javascript" src="./scripts/webcam.min.js"></script>
+        <script type="text/javascript" src="./scripts/js.js"></script>
+        <script type="text/javascript" src="./scripts/three.js"></script>
+        <script type="text/javascript" src="./scripts/jStorage.js"></script>
+        <link rel="stylesheet" type="text/css" href="./css/style.css">
+        <link rel="stylesheet" type="text/css" href="./css/styleMain.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> <!--320-->
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <script type="text/javascript">
+        
+        </script>
+    </head>
+    <body>
+        <section role="main">
+	<div id="container">
+		<nav id="toolbar">
+			<ul>
+				<li><a href="#" id="penBtn" class="button"><div><span>Effacer</span></div></a></li>
+				<!--<li><a href="#" id="editBtn" class="toggleButton button"><div><span>Modifier</span></div></a></li> -->
+				<!--<li><a href="#" id="deleteBtn" class="toggleButton button"><div><span>Delete</span></div></a></li> -->
+				<li><a href="#" id="loadBtn" class="button"><div><span>Camera</span></div></a></li>
+                <li><a href="#" id="saveBtn" class = "button"><div><span>Sauvegarder</span></div></a></li>
+			</ul>
+		</nav>
+		<canvas id="cookieCutter2d"  class="bigView"></canvas>
+		<div id="cookieCutter3d" class="smallPreview" ></div>
+		<div id="dialog" >
+			<div>
+				Donne donc un nom à ton cookie cutter:<br/>
+			<input type="text" id="cookieName"/><br/>
+			<input type="button" id="confirmSave" value="Sauver"></input>
+			</div>
+		</div>
+        <div id="dialogLoad">
+        	<div>
+        	 <div id="my_camera" ></div>
+			<input type="button" id="btnCamera" value="Click"></input>
+		</div>
+        </div>
+
+	</div>
+	
+	<script type="text/javascript">
+
+
+	   
+
+
+	var currentPoints = [], simplePoints = [];
+	var intersectCount = 0;
+	var mode = "";
+	$(document).ready(function() {
+	    $( "#dialog" ).dialog({height:160, width:350, modal:true,title:"Enregistrement",  dialogClass: "no-close", autoOpen:false} );
+	    
+
+	    //$( "#dialog" ).close();
+	    $("#confirmSave").click(function(event) {
+	    		
+	    		save(currentSimplePoints, $("#cookieName").val());
+	    		setMode("EDIT");
+	    		$( "#dialog" ).dialog("close");
+	    		$("#cookieName").val("");
+	    });
+
+
+	    $("#dialogLoad").dialog({ height: 600, width: 'auto', modal: true, title: "Camera", dialogClass: "no-close", autoOpen: false });
+
+	    $("#btnOpenImage").click(function (event) {
+
+	        $("#imageName").val();
+	    });
+
+
+	    $("#btnCamera").click(function (event) {
+	    	  Webcam.snap( function(data_uri) {
+                paper.loadImage(data_uri);
+              //  Webcam.reset();
+                 $("#dialogLoad").dialog("close");
+            });
+
+
+	    });
+
+
+
+	    init3D($("#cookieCutter3d"), 200, 300);
+ 	    animate3D();
+
+	    $("#penBtn").click(function() {
+	        setMode("RESTART");
+	    });
+
+
+	    $("#loadBtn").click(function () {
+	        
+	         Webcam.set({
+                // live preview size
+                width: 640,
+                height: 480,
+                
+                // device capture size
+                dest_width: 640,
+                dest_height: 480,
+                
+                // final cropped size
+                crop_width: 480,
+                crop_height: 480,
+                
+                // format and quality
+                image_format: 'jpeg',
+                jpeg_quality: 90,
+                
+                // flip horizontal (mirror mode)
+                flip_horiz: false
+            });
+            
+        Webcam.attach( '#my_camera' );
+
+		$("#dialogLoad").dialog("open");
+	    });
+
+
+	    $("#saveBtn").click(function() {
+	    	if( intersectCount > 0)
+	    	{
+	    		alert("Modifie la forme. Elle contient des intersections.");
+	    		return;
+	    	}
+	    	setMode("SAVE");
+			$("#dialog").dialog("open");
+
+	     });
+	    $("#editBtn").click(function() {
+	        setMode("EDIT");
+	    });
+	    $("#previewBtn").click(function() {
+	    	if( intersectCount > 0)
+	    	{
+	    		alert("Modifie la forme. Elle contient des intersections.");
+	    		return;
+	    	}	     	
+	    });
+	     $("#deleteBtn").click(function() {
+	        setMode("DELETE");
+	        paper.clearAndDelete();
+	    });
+		setMode("PEN");
+
+	});
+
+	function postPoints(points,simplePoints,intersectionCount) {
+	    currentPoints = points;
+	    currentSimplePoints = simplePoints;
+	    addMesh(currentPoints);
+	    intersectCount = intersectionCount;
+	}
+	var cloned3DView;
+	function setMode(m) {
+	    mode = m;
+	    $("#toolbar .toggleButton").removeClass("selected");
+        $("#cookieCutter2d").removeClass();
+        $("#cookieCutter3d").removeClass();
+
+		switch (mode) {
+	        case "EDIT":
+	            $("#cookieCutter2d").css("cursor", "crosshair");
+	            $("#editBtn").addClass("selected");
+        		$("#cookieCutter2d").addClass("bigView");
+				$("#cookieCutter3d").addClass("smallPreview");
+	            break;
+	        case "PEN":
+	            $("#cookieCutter2d").css("cursor", "crosshair");
+	             $("#editBtn").addClass("selected");
+        		$("#cookieCutter2d").addClass("bigView");
+	    		$("#cookieCutter3d").addClass("smallPreview");
+		        break;
+	        case "PREVIEW":
+	        break
+	        case "DELETE":
+	        	$("#cookieCutter2d").css("cursor", "no-drop");
+	            $("#deleteBtn").addClass("selected");
+        		$("#cookieCutter2d").addClass("bigView");
+	    		$("#cookieCutter3d").addClass("smallPreview");
+		        
+	    		break;
+		    case "RESTART":
+		        clearScene();
+		        paper.restart();
+		        break;
+	    }
+	}
+	</script>
+	<script type="text/paperscript" canvas="cookieCutter2d" src="./scripts/cookiecutter.paper.js">
+	</script>
+	<script type="text/javascript" src="./scripts/3DViewer.js"></script>
+	
+        </section>
+    </body>
+</html>
+	
