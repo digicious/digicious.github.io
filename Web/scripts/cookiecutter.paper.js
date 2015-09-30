@@ -89,7 +89,11 @@ paper.restart = function() {
         redCircleGroup.remove();
     }
     redCircleGroup = new Group();
-
+    if(raster)
+    {
+        raster.sendToBack();
+        
+    }
     
     setMode("PEN");
 }
